@@ -4,18 +4,15 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
-// Загружаем .env файл
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-// ========== PUBLIC ROUTES ==========
 app.get('/', (req, res) => {
   res.json({
     name: 'Backlog API',
@@ -49,7 +46,6 @@ app.get('/api/tokens', (req, res) => {
   res.json(tokens);
 });
 
-// ========== ЧАТ API ==========
 app.post('/api/v1/chat/sessions', (req, res) => {
   res.json({
     id: 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
@@ -62,9 +58,15 @@ app.post('/api/v1/chat/sessions', (req, res) => {
 });
 
 app.post('/api/v1/chat/messages', (req, res) => {
+    if (!req.body || !req.body.session_id) {
+    return res.status(400).json({
+      error: 'Missing required fields',
+      required: ['session_id', 'message']
+    });
+  }
+  
   const userMessage = req.body.message || '';
   
-  // Умный мок-агент с разными ответами в зависимости от сообщения
   let response;
   
   if (userMessage.includes('404') || userMessage.includes('не загружается')) {
@@ -148,7 +150,6 @@ app.post('/api/v1/chat/messages', (req, res) => {
       }
     };
   } else {
-    // Общий ответ
     response = {
       type: 'analysis_result',
       problem_summary: 'Анализ проблемы: ' + userMessage,
@@ -201,7 +202,6 @@ app.get('/api/v1/chat/sessions/:sessionId', (req, res) => {
   });
 });
 
-// ========== ADMIN API ==========
 app.get('/api/v1/admin/sessions', (req, res) => {
   res.json({
     data: [
@@ -250,7 +250,6 @@ app.get('/api/v1/admin/backlog', (req, res) => {
   });
 });
 
-// ========== 404 HANDLER ==========
 app.use((req, res) => {
   res.status(404).json({
     error: 'Route not found',
@@ -267,12 +266,11 @@ app.use((req, res) => {
   });
 });
 
-// ========== ЗАПУСК СЕРВЕРА ==========
 app.listen(3000, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${port}`);
-  console.log(`📚 API Documentation:`);
-  console.log(`   Health check: http://localhost:${port}/health`);
-  console.log(`   Get tokens: http://localhost:${port}/api/tokens`);
-  console.log(`   Root: http://localhost:${port}/`);
-  console.log(`   Chat API: http://localhost:${port}/api/v1/chat/`);
+  console.log(`   Server running on http://0.0.0.0:${port}`);
+  // console.log(`   API Documentation:`);
+  // console.log(`   Health check: http://localhost:${port}/health`);
+  // console.log(`   Get tokens: http://localhost:${port}/api/tokens`);
+  // console.log(`   Root: http://localhost:${port}/`);
+  // console.log(`   Chat API: http://localhost:${port}/api/v1/chat/`);
 });
