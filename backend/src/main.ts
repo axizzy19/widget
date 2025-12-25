@@ -3,6 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerOptions } from './swagger'; 
 
 dotenv.config();
 
@@ -12,6 +15,25 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customSiteTitle: 'Backlog API Docs',
+  customCss: '.swagger-ui .topbar { display: none }',
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'list',
+    filter: true,
+  },
+}));
+
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
 
 app.get('/', (req, res) => {
   res.json({
@@ -268,7 +290,7 @@ app.use((req, res) => {
 
 app.listen(3000, '0.0.0.0', () => {
   console.log(`   Server running on http://0.0.0.0:${port}`);
-  // console.log(`   API Documentation:`);
+  console.log(`   API Documentation: http://localhost:${port}/api-docs`);
   // console.log(`   Health check: http://localhost:${port}/health`);
   // console.log(`   Get tokens: http://localhost:${port}/api/tokens`);
   // console.log(`   Root: http://localhost:${port}/`);
