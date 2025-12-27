@@ -1,19 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import 'reflect-metadata';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { ChatSession } from "./chat-session.entity";
 
-@Entity('chat-message') 
+@Entity('chat_messages') 
 export class ChatMessage {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('varchar', { length: 255 })
   id: string;
 
-  // связь многие к одному
-  @ManyToOne(() => ChatSession, (session) => session.messages, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'session_id' })
-  session: ChatSession;
-
-  @Column()
+  @Column('varchar', { length: 255 })
   session_id: string;
 
   @Column({ type: 'varchar', length: 20 })
@@ -35,4 +29,7 @@ export class ChatMessage {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @ManyToOne(() => ChatSession, (session) => session.messages)
+  session: ChatSession;
 }

@@ -26,7 +26,6 @@ export class ChatService {
   async addMessage(dto: CreateMessageDto) {
     const { session_id, message, metadata = {} } = dto;
 
-    // 1. Проверяем существование сессии
     const session = await this.chatSessionRepository.findOne({
       where: { id: session_id },
     });
@@ -39,7 +38,6 @@ export class ChatService {
       throw new Error(`Session ${session_id} is closed`);
     }
 
-    // 2. Сохраняем сообщение пользователя
     const userMessage = this.chatMessageRepository.create({
       session_id,
       role: 'user',
@@ -50,18 +48,15 @@ export class ChatService {
 
     await this.chatMessageRepository.save(userMessage);
 
-    // 3. Обновляем время сессии
     session.updated_at = new Date();
     await this.chatSessionRepository.save(session);
 
     try {
-      // 4. Обрабатываем через агента
       const agentResult = await this.agentService.processMessage(
         message,
         session,
       );
 
-      // 5. Сохраняем ответ агента
       const agentMessage = this.chatMessageRepository.create({
         session_id,
         role: 'agent',
@@ -72,7 +67,6 @@ export class ChatService {
 
       await this.chatMessageRepository.save(agentMessage);
 
-      // 6. Создаем задачу в беклоге (если это анализ проблемы)
       if (agentResult.type === 'analysis_result') {
         const taskData = await this.agentService.createBacklogTask(
           agentResult,
@@ -92,7 +86,6 @@ export class ChatService {
         timestamp: new Date().toISOString(),
       };
     } catch (agentError) {
-      // 7. Если агент ошибся, сохраняем системное сообщение об ошибке
       const errorMessage = this.chatMessageRepository.create({
         session_id,
         role: 'system',
@@ -117,7 +110,6 @@ export class ChatService {
       return null;
     }
 
-    // Сортируем сообщения по времени
     if (session.messages) {
       session.messages.sort(
         (a, b) => a.created_at.getTime() - b.created_at.getTime(),

@@ -1,4 +1,8 @@
-import { DataSource } from "typeorm";
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import { ChatSession } from '../modules/chat/entities/chat-session.entity';
+import { ChatMessage } from '../modules/chat/entities/chat-message.entity';
+import { BacklogTask } from '../modules/backlog/entities/backlog-task.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -7,9 +11,9 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'backlog_db',
-  synchronize: process.env.NODE_ENV !== 'production',
-  logging: process.env.NODE_ENV === 'development',
-  // entities: [ChatSession, ChatMessage, BacklogTask],
+  synchronize: false,  
+  logging: true, 
+  entities: [ChatSession, ChatMessage, BacklogTask],
   migrations: [],
   subscribers: [],
-})
+});

@@ -18,8 +18,6 @@ export class Api2Service {
         },
       };
     } catch (error) {
-
-      // пока заглушка
       return {
         docs: [
           {

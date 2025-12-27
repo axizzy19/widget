@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import 'reflect-metadata';
+import { Column, CreateDateColumn, Entity, OneToMany } from "typeorm";
 
 @Entity('backlog_tasks')
 export class BacklogTask {
-  @PrimaryGeneratedColumn('uuid')
+  @Column({ primary: true })
   id: string;
 
   @Column({ type: 'text' })

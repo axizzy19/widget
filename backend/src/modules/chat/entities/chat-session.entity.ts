@@ -1,9 +1,10 @@
+import 'reflect-metadata';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ChatMessage } from "./chat-message.entity";
 
 @Entity('chat_sessions')
 export class ChatSession {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid') 
   id: string;
 
   @Column({ type: 'varchar', length: 50 })
@@ -26,6 +27,9 @@ export class ChatSession {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => ChatMessage, (message) => message.session)
+  @OneToMany(() => ChatMessage, (message) => message.session, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   messages: ChatMessage[];
 }
